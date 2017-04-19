@@ -39,7 +39,8 @@ class ProductList extends \yii\db\ActiveRecord
             [['category_id','product_count', 'product_desc', 'product_id', 'product_name', 'product_price'], 'required'],
             [['product_id'],'unique'],
             [['product_image'],'file'],
-            [['product_count', 'product_price'], 'integer'],
+            [['product_count'], 'integer'],
+            [['product_price'], 'double']
             [['category_id', 'product_id', 'product_name'], 'string', 'max' => 50],
             [['product_desc'], 'string', 'max' => 100],
             
