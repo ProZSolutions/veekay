@@ -49,8 +49,7 @@ public function behaviors()
   public function actionIndex() {         
     $query= new Query;       
     $query  ->select(['cust_ID','cust_Name','cust_Door_No','cust_Street_Name', 'cust_town as cust_Town','cust_country as cust_Country','cust_postcode as cust_Postcode','cust_band as cust_Band','cust_img as cust_Img','cust_no as cust_No', 'cust_AltNo', 'cust_mail as cust_Mail','is_Active']) 
-      ->from('Customer') 
-      ->where(['is_Active' => '0']);                
+      ->from('Customer');                
     $command = $query->createCommand();
     $models = $command->queryAll();      
     $this->setHeader(200);     
@@ -172,7 +171,7 @@ public function behaviors()
   }
 
   protected function findModel($cust_ID) { 
-    if (($model = Customer::findOne(['cust_ID' => $cust_ID,'is_Active' => '0'])) !== null) {
+    if (($model = Customer::findOne(['cust_ID' => $cust_ID])) !== null) {
       return $model;
     }
     else {

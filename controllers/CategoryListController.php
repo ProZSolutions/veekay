@@ -52,8 +52,7 @@ public function behaviors()
   public function actionIndex() {         
     $query= new Query;      
     $query ->from('category_list')      
-    ->select("category_id as category_ID,category_name as category_Name")
-    ->where(['is_active' => 'Y']);           
+    ->select("category_id as category_ID,category_name as category_Name, is_Active");           
     $command = $query->createCommand();
     $models = $command->queryAll();  
     $this->setHeader(200);     
@@ -107,7 +106,7 @@ public function behaviors()
   } 
   //find particular data for delete and update process
   protected function findModel($category_ID) { 
-    if (($model = CategoryList::findOne(['category_id' => $category_ID,'is_active' => 'Y'])) !== null) {
+    if (($model = CategoryList::findOne(['category_id' => $category_ID])) !== null) {
       return $model;
     }
     else {
