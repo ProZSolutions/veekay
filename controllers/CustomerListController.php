@@ -47,9 +47,10 @@ public function behaviors()
   }   
     
   public function actionIndex() {         
-    $query= new Query;    
-    $query  ->select(['p.cust_id as cust_ID','p.cust_name as cust_Name', 'p.cust_addr as cust_Addr','p.cust_no as custNo', 'p.cust_alt_no as cust_AltNo', 'p.cust_band as cust_Band', 'p.cust_image as cust_Img',  'p.cust_mail as cust_mail']) 
-      ->from('customer as p');               
+    $query= new Query;       
+    $query  ->select(['cust_ID','cust_Name','cust_Door_No','cust_Street_Name', 'cust_town as cust_Town','cust_country as cust_Country','cust_postcode as cust_Postcode','cust_band as cust_Band','cust_img as cust_Img','cust_no as cust_No', 'cust_AltNo', 'cust_mail as cust_Mail','is_Active']) 
+      ->from('Customer') 
+      ->where(['is_Active' => '0']);                
     $command = $query->createCommand();
     $models = $command->queryAll();      
     $this->setHeader(200);     
@@ -59,13 +60,17 @@ public function behaviors()
   public function actionUploadCustomerList() {       
   $params = Yii::$app->getRequest()->getBodyParams();      
   $model = new Customer();     
-  $model->cust_id=$params['cust_ID'];
-  $model->cust_name=$params['cust_Name'];
-  $model->cust_addr=$params['cust_Addr'];
-  $model->cust_alt_no=$params['cust_AltNo'];
+  $model->cust_ID=$params['cust_ID'];
+  $model->cust_Name=$params['cust_Name'];
+  $model->cust_Door_No=$params['cust_Door_No'];
+  $model->cust_Street_Name=$params['cust_Street_Name'];
+  $model->cust_country=$params['cust_Country'];
+  $model->cust_postcode=$params['cust_Postcode'];
   $model->cust_band=$params['cust_Band'];
   $model->cust_mail=$params['cust_Mail'];  
-  $model->cust_no=$params['custNo']; 
+  $model->cust_town=$params['cust_Town']; 
+  $model->cust_no=$params['cust_No']; 
+  $model->cust_AltNo=$params['cust_AltNo']; 
   if(isset($_FILES['cust_Img']) && !empty($_FILES['cust_Img'])) {
    $target_path = yii::$app->basePath . "/uploads/cus_img/" . $_FILES['cust_Img']['name'];
    $ext = pathinfo($target_path, PATHINFO_EXTENSION);
@@ -77,7 +82,7 @@ public function behaviors()
    $syntax = move_uploaded_file($_FILES['cust_Img']['tmp_name'], $path);
    if($syntax)
    {
-  $model->cust_image = "http://api.pro-z.in/uploads/cus_img/".$img_name;
+  $model->cust_img = "http://api.pro-z.in/uploads/cus_img/".$img_name;
         
     if ($model->save()) {      
       $this->setHeader(200);
@@ -107,13 +112,17 @@ public function behaviors()
   $params = Yii::$app->getRequest()->getBodyParams();      
   $model = new Customer();   
   $model = $this->findModel($cust_ID);   
-  $model->cust_id=$params['cust_ID'];
-  $model->cust_name=$params['cust_Name'];
-  $model->cust_addr=$params['cust_Addr'];
-  $model->cust_alt_no=$params['cust_AltNo'];
+  $model->cust_ID=$params['cust_ID'];
+  $model->cust_Name=$params['cust_Name'];
+  $model->cust_Door_No=$params['cust_Door_No'];
+  $model->cust_Street_Name=$params['cust_Street_Name'];
+  $model->cust_country=$params['cust_Country'];
+  $model->cust_postcode=$params['cust_Postcode'];
   $model->cust_band=$params['cust_Band'];
   $model->cust_mail=$params['cust_Mail'];  
-  $model->cust_no=$params['custNo']; 
+  $model->cust_town=$params['cust_Town']; 
+  $model->cust_no=$params['cust_No']; 
+  $model->cust_AltNo=$params['cust_AltNo']; 
    if(isset($_FILES['cust_Img']) && !empty($_FILES['cust_Img'])) {
       $target_path = yii::$app->basePath . "/uploads/" . $_FILES['cust_Img']['name'];
       $ext = pathinfo($target_path, PATHINFO_EXTENSION);
@@ -123,7 +132,7 @@ public function behaviors()
       $syntax = move_uploaded_file($_FILES['cust_Img']['tmp_name'], $path);
       if($syntax)
       {
-        $model->cust_image = "http://api.pro-z.in/uploads/cus_img/".$img_name;
+        $model->cust_img = "http://api.pro-z.in/uploads/cus_img/".$img_name;
           
       if ($model->save()) {      
         $this->setHeader(200);
@@ -136,7 +145,7 @@ public function behaviors()
       } 
     }
     else{
-      $model->cust_image=$model['cust_image'];
+      $model->cust_img=$model['cust_img'];
       if ($model->save()) {      
         $this->setHeader(200);
         echo json_encode(array('status'=>"success"),JSON_PRETTY_PRINT);        
@@ -151,7 +160,7 @@ public function behaviors()
    public function actionDeleteCustomerList($cust_ID) {   
     $model = new Customer();
     $model = $this->findModel($cust_ID);   
-    $model->is_active='N';     
+    $model->is_Active='1';     
     if ($model->save()) {      
       $this->setHeader(200);
       echo json_encode(array('status'=>"success"),JSON_PRETTY_PRINT);        
@@ -163,7 +172,7 @@ public function behaviors()
   }
 
   protected function findModel($cust_ID) { 
-    if (($model = Customer::findOne(['cust_id' => $cust_ID,'is_active' => 'Y'])) !== null) {
+    if (($model = Customer::findOne(['cust_ID' => $cust_ID,'is_Active' => '0'])) !== null) {
       return $model;
     }
     else {

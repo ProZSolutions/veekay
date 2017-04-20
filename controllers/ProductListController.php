@@ -5,8 +5,8 @@ use Yii;
 use yii\filters\VerbFilter;
 use yii\db\Query;
 use yii\db\ActiveQuery;
-use app\models\ProductList;
-use yii\web\UploadedFile;
+use app\models\Product;
+
 
 class ProductListController extends \yii\web\Controller
 {
@@ -50,11 +50,12 @@ public function behaviors()
   }   
     
   public function actionIndex() {         
-    $query= new Query;   
-    $query  ->select(['c.category_id as category_ID','c.category_name as category_Name', 'p.product_count as product_Count', 'p.product_desc as product_Desc', 'p.product_id as product_ID', 'p.product_image as product_Image',  'p.product_name as product_Name', 'p.product_price as product_Price']) 
-      ->from('product_list as p')
-      ->leftJoin('category_list as c', 'c.category_id = p.category_id')
-      ->where(['p.is_active' => 'Y']);  
+    $query= new Query; 
+    
+    $query  ->select(['c.category_id as Category_ID','c.category_name as category_Name', 'p.product_Count', 'p.product_Desc', 'p.product_Id','p.product_Band', 'p.product_Image',  'p.product_Name', 'p.product_Price']) 
+      ->from('Product as p')
+      ->leftJoin('category_list as c', 'c.category_id = p.Category_ID')
+      ->where(['p.is_Active' => '0']);  
               
     $command = $query->createCommand();
     $models = $command->queryAll();       
@@ -65,13 +66,14 @@ public function behaviors()
 
   public function actionUploadProductList() {       
   $params = Yii::$app->getRequest()->getBodyParams();      
-  $model = new ProductList(); 
-  $model->category_id=$params['category_ID'];
-  $model->product_count=$params['product_Count'];
-  $model->product_id=$params['product_Id'];
-  $model->product_name=$params['product_Name'];
-  $model->product_price=$params['product_Price'];
-  $model->product_desc=$params['product_Desc']; 
+  $model = new Product(); 
+  $model->Category_ID=$params['category_ID'];
+  $model->product_Count=$params['product_Count'];
+  $model->product_Id=$params['product_Id'];
+  $model->product_Name=$params['product_Name'];
+  $model->product_Price=$params['product_Price'];
+  $model->product_Desc=$params['product_Desc'];
+  $model->product_Band=$params['product_Band'];
 
    if(isset($_FILES['product_Image']) && !empty($_FILES['product_Image'])) {
     
@@ -86,7 +88,7 @@ public function behaviors()
    if($syntax)
    {
 
-  $model->product_image = "http://api.pro-z.in/uploads/".$img_name;
+  $model->product_Image = "http://api.pro-z.in/uploads/".$img_name;
         
     if ($model->save()) {      
       $this->setHeader(200);
@@ -113,14 +115,15 @@ public function behaviors()
   } 
   public function actionUpdateProductList($product_ID) {   
     $params = Yii::$app->request->getBodyParams();       
-    $model = new ProductList();
-    $model = $this->findModel($product_ID);       
-    $model->category_id=$params['category_ID'];
-    $model->product_count=$params['product_Count'];
-    $model->product_id=$params['product_Id'];
-    $model->product_name=$params['product_Name'];
-    $model->product_price=$params['product_Price'];
-    $model->product_desc=$params['product_Desc'];
+    $model = new Product();
+     $model = $this->findModel($product_ID); 
+    $model->Category_ID=$params['category_ID'];
+    $model->product_Count=$params['product_Count'];
+    $model->product_Id=$params['product_Id'];
+    $model->product_Name=$params['product_Name'];
+    $model->product_Price=$params['product_Price'];
+    $model->product_Desc=$params['product_Desc'];
+    $model->product_Band=$params['product_Band'];
      if(isset($_FILES['product_Image']) && !empty($_FILES['product_Image'])) {
       $target_path = yii::$app->basePath . "/uploads/" . $_FILES['product_Image']['name'];
       $ext = pathinfo($target_path, PATHINFO_EXTENSION);
@@ -130,7 +133,7 @@ public function behaviors()
       $syntax = move_uploaded_file($_FILES['product_Image']['tmp_name'], $path);
       if($syntax)
       {
-        $model->product_image = "http://api.pro-z.in/uploads/".$img_name;
+        $model->product_Image = "http://api.pro-z.in/uploads/".$img_name;
           
       if ($model->save()) {      
         $this->setHeader(200);
@@ -143,7 +146,7 @@ public function behaviors()
       } 
     }
     else{
-      $model->product_image=$model['product_image'];
+      $model->product_Image=$model['product_Image'];
       if ($model->save()) {      
         $this->setHeader(200);
         echo json_encode(array('status'=>"success"),JSON_PRETTY_PRINT);        
@@ -156,9 +159,9 @@ public function behaviors()
     }  
   }  
    public function actionDeleteProductList($product_ID) {           
-    $model = new ProductList();
+    $model = new Product();
     $model = $this->findModel($product_ID);   
-    $model->is_active='N';     
+    $model->is_Active='1';     
     if ($model->save()) {      
       $this->setHeader(200);
       echo json_encode(array('status'=>"success"),JSON_PRETTY_PRINT);        
@@ -172,7 +175,7 @@ public function behaviors()
       
   protected function findModel($product_ID) { 
 
-    if (($model = ProductList::findOne(['product_id' => $product_ID,'is_active' => 'Y'])) !== null) {
+    if (($model = Product::findOne(['product_Id' => $product_ID,'is_Active' => '0'])) !== null) {
       return $model;
     }
     else {

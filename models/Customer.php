@@ -5,16 +5,21 @@ namespace app\models;
 use Yii;
 
 /**
- * This is the model class for table "customer".
+ * This is the model class for table "Customer".
  *
- * @property string $cust_id
- * @property string $cust_name
- * @property string $cust_addr
- * @property int $cust_no
- * @property int $cust_alt_no
+ * @property string $cust_ID
+ * @property string $cust_Name
+ * @property string $cust_Door_No
+ * @property string $cust_Street_Name
+ * @property string $cust_town
+ * @property string $cust_country
+ * @property string $cust_postcode
  * @property string $cust_band
- * @property string $cust_image
+ * @property string $cust_img
  * @property string $cust_mail
+ * @property string $cust_no
+ * @property string $cust_AltNo
+ * @property int $is_Active
  */
 class Customer extends \yii\db\ActiveRecord
 {
@@ -23,7 +28,7 @@ class Customer extends \yii\db\ActiveRecord
      */
     public static function tableName()
     {
-        return 'customer';
+        return 'Customer';
     }
 
     /**
@@ -32,29 +37,31 @@ class Customer extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['cust_id', 'cust_name', 'cust_addr', 'cust_no', 'cust_alt_no', 'cust_band', 'cust_mail'], 'required'],
-                 [['cust_id'],'unique'],
-            [['cust_no', 'cust_alt_no'], 'integer'],
-            [['cust_id'], 'string'],
-            [['cust_name', 'cust_band'], 'string'],
-            [['cust_addr', 'cust_image'], 'string'],
-            [['cust_mail'], 'email'],
+            [['cust_ID', 'cust_Name', 'cust_Door_No', 'cust_Street_Name', 'cust_town', 'cust_country', 'cust_postcode', 'cust_band', 'cust_mail', 'cust_no', 'cust_AltNo'], 'required'],
+            [['is_Active'], 'integer'],
+            [['cust_ID', 'cust_Name', 'cust_Door_No', 'cust_Street_Name', 'cust_town', 'cust_country', 'cust_postcode', 'cust_band', 'cust_img', 'cust_mail', 'cust_no', 'cust_AltNo'], 'string', 'max' => 25],
         ];
     }
-     /**
+
+    /**
      * @inheritdoc
      */
     public function attributeLabels()
     {
         return [
-            'cust_id' => 'cust ID',
-            'cust_name' => 'cust Name',
-            'cust_addr' => 'cust Addr',
-            'cust_no' => 'cust No',
-            'cust_alt_no' => 'cust AltNo',
-            'cust_band' => 'cust Band',
-            'cust_image' => 'cust Image',
-            'cust_mail' => ' Mail Id',
+            'cust_ID' => 'Customer  ID',
+            'cust_Name' => 'Customer  Name',
+            'cust_Door_No' => 'Customer  Door  No',
+            'cust_Street_Name' => 'Customer  Street  Name',
+            'cust_town' => 'Customer Town',
+            'cust_country' => 'Customer Country',
+            'cust_postcode' => 'Customer Postcode',
+            'cust_band' => 'Customer Band',
+            'cust_img' => 'Customer Img',
+            'cust_mail' => 'Customer Mail',
+            'cust_no' => 'Customer No',
+            'cust_AltNo' => 'Customer  Alt No',
+            'is_Active' => 'Is  Active',
         ];
     }
 }
