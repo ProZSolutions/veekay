@@ -33,7 +33,7 @@ CREATE TABLE `Product` (
   `product_Desc` varchar(100) NOT NULL,
   `product_Name` varchar(50) NOT NULL,
   `product_Price` double NOT NULL,
-  `product_Image` varchar(50) NOT NULL,
+  `product_Image` varchar(100) NOT NULL,
   `product_Band` varchar(30) NOT NULL,
   `is_Active` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;

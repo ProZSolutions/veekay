@@ -9,7 +9,9 @@ use Yii;
  *
  * @property string $category_id
  * @property string $category_name
+ * @property int $is_Active
  *
+ * @property Product[] $products
  * @property ProductList[] $productLists
  */
 class CategoryList extends \yii\db\ActiveRecord
@@ -19,7 +21,7 @@ class CategoryList extends \yii\db\ActiveRecord
      */
     public static function tableName()
     {
-        return 'category_list';
+        return 'category';
     }
 
     /**
@@ -29,7 +31,7 @@ class CategoryList extends \yii\db\ActiveRecord
     {
         return [
             [['category_id', 'category_name'], 'required'],
-            [['category_id'],'unique'],
+            [['is_Active'], 'integer'],
             [['category_id', 'category_name'], 'string', 'max' => 50],
         ];
     }
@@ -42,14 +44,20 @@ class CategoryList extends \yii\db\ActiveRecord
         return [
             'category_id' => 'Category ID',
             'category_name' => 'Category Name',
+            'is_Active' => 'Is  Active',
         ];
     }
 
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getProductLists()
+    public function getProducts()
     {
-        return $this->hasMany(ProductList::className(), ['category_id' => 'category_id']);
+        return $this->hasMany(Product::className(), ['Category_ID' => 'category_id']);
     }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+   
 }

@@ -35,7 +35,7 @@ CREATE TABLE `Customer` (
   `cust_country` varchar(25) NOT NULL,
   `cust_postcode` varchar(25) NOT NULL,
   `cust_band` varchar(25) NOT NULL,
-  `cust_img` varchar(25) NOT NULL,
+  `cust_img` varchar(100) NOT NULL,
   `cust_mail` varchar(25) NOT NULL,
   `cust_no` varchar(25) NOT NULL,
   `cust_AltNo` varchar(25) NOT NULL,

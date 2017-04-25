@@ -85,7 +85,7 @@ public function behaviors()
         
     if ($model->save()) {      
       $this->setHeader(200);
-      echo json_encode(array('status'=>"success"),JSON_PRETTY_PRINT);        
+      echo json_encode(array('status'=>"success",'data'=>array('image'=>$model->cust_img)),JSON_UNESCAPED_SLASHES);        
     } 
     else {
       $this->setHeader(400);
@@ -135,7 +135,7 @@ public function behaviors()
           
       if ($model->save()) {      
         $this->setHeader(200);
-        echo json_encode(array('status'=>"success"),JSON_PRETTY_PRINT);        
+        echo json_encode(array('status'=>"success",'data'=>array('image'=>$model->cust_img)),JSON_UNESCAPED_SLASHES);        
       } 
       else {
         $this->setHeader(400);
@@ -147,7 +147,7 @@ public function behaviors()
       $model->cust_img=$model['cust_img'];
       if ($model->save()) {      
         $this->setHeader(200);
-        echo json_encode(array('status'=>"success"),JSON_PRETTY_PRINT);        
+        echo json_encode(array('status'=>"success",'data'=>array('image'=>$model['cust_img'])),JSON_UNESCAPED_SLASHES);        
       } 
       else {
         $this->setHeader(400);

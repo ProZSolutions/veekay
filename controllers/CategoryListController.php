@@ -23,7 +23,6 @@ public function behaviors()
           'delete-category-list'=>['post'],                  
         ],        
       ]
-
     ];
   }
   //access the action (for example actionUplaodCategoryList)
@@ -51,7 +50,7 @@ public function behaviors()
   //this method used to get all category list  
   public function actionIndex() {         
     $query= new Query;      
-    $query ->from('category_list')      
+    $query ->from('category')      
     ->select("category_id as category_ID,category_name as category_Name, is_Active");           
     $command = $query->createCommand();
     $models = $command->queryAll();  
@@ -94,7 +93,7 @@ public function behaviors()
   public function actionDeleteCategoryList($category_ID) {           
     $model = new CategoryList();
     $model = $this->findModel($category_ID);   
-    $model->is_active='N';     
+    $model->is_Active='1';     
     if ($model->save()) {      
       $this->setHeader(200);
       echo json_encode(array('status'=>"success"),JSON_PRETTY_PRINT);        

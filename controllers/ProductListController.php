@@ -53,7 +53,7 @@ public function behaviors()
     $query= new Query;     
     $query  ->select(['c.category_id as Category_ID','c.category_name as category_Name', 'p.product_Count', 'p.product_Desc', 'p.product_Id','p.product_Band', 'p.product_Image',  'p.product_Name', 'p.product_Price','p.is_Active']) 
       ->from('Product as p')
-      ->leftJoin('category_list as c', 'c.category_id = p.Category_ID');             
+      ->leftJoin('category as c', 'c.category_id = p.Category_ID');             
     $command = $query->createCommand();
     $models = $command->queryAll();    
     $this->setHeader(200);     
@@ -71,18 +71,18 @@ public function behaviors()
   $model->product_Desc=$params['product_Desc'];
   $model->product_Band=$params['product_Band'];
    if(isset($_FILES['product_Image']) && !empty($_FILES['product_Image'])) {    
-   $target_path = yii::$app->basePath . "/uploads/" . $_FILES['product_Image']['name'];
+   $target_path = yii::$app->basePath . "/uploads/prod_img/" . $_FILES['product_Image']['name'];
    $ext = pathinfo($target_path, PATHINFO_EXTENSION);
    $ext=($ext)?$ext:'.jpg';
    $img_name = time() . "." . $ext;
-   $path = yii::$app->basePath . "/uploads/" . $img_name; 
+   $path = yii::$app->basePath . "/uploads/prod_img/" . $img_name; 
    $syntax = move_uploaded_file($_FILES['product_Image']['tmp_name'], $path);
    if($syntax)
    {
-    $model->product_Image = "http://api.pro-z.in/uploads/".$img_name;        
+    $model->product_Image = "http://api.pro-z.in/uploads/prod_img/".$img_name;        
     if ($model->save()) {      
       $this->setHeader(200);
-      echo json_encode(array('status'=>"success"),JSON_PRETTY_PRINT);        
+      echo json_encode(array('status'=>"success",'data'=>array('image'=>$model->product_Image)),JSON_UNESCAPED_SLASHES);        
     } 
     else {
       $this->setHeader(400);
@@ -113,19 +113,19 @@ public function behaviors()
     $model->product_Desc=$params['product_Desc'];
     $model->product_Band=$params['product_Band'];
      if(isset($_FILES['product_Image']) && !empty($_FILES['product_Image'])) {
-      $target_path = yii::$app->basePath . "/uploads/" . $_FILES['product_Image']['name'];
+      $target_path = yii::$app->basePath . "/uploads/prod_img/" . $_FILES['product_Image']['name'];
       $ext = pathinfo($target_path, PATHINFO_EXTENSION);
       $ext=($ext)?$ext:'.jpg';
       $img_name = time() . "." . $ext;
-      $path = yii::$app->basePath . "/uploads/" . $img_name;
+      $path = yii::$app->basePath . "/uploads/prod_img/" . $img_name;
       $syntax = move_uploaded_file($_FILES['product_Image']['tmp_name'], $path);
       if($syntax)
       {
-        $model->product_Image = "http://api.pro-z.in/uploads/".$img_name;
+        $model->product_Image = "http://api.pro-z.in/uploads/prod_img/".$img_name;
           
       if ($model->save()) {      
         $this->setHeader(200);
-        echo json_encode(array('status'=>"success"),JSON_PRETTY_PRINT);        
+         echo json_encode(array('status'=>"success",'data'=>array('image'=>$model->product_Image)),JSON_UNESCAPED_SLASHES);               
       } 
       else {
         $this->setHeader(400);
@@ -137,7 +137,7 @@ public function behaviors()
       $model->product_Image=$model['product_Image'];
       if ($model->save()) {      
         $this->setHeader(200);
-        echo json_encode(array('status'=>"success"),JSON_PRETTY_PRINT);        
+        echo json_encode(array('status'=>"success",'data'=>array('image'=>$model['product_Image'])),JSON_UNESCAPED_SLASHES);        
       } 
       else {
         $this->setHeader(400);

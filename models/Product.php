@@ -40,7 +40,7 @@ class Product extends \yii\db\ActiveRecord
             [['product_Price'], 'number'],
             [['Category_ID', 'product_Id'], 'string', 'max' => 25],
             [['product_Desc'], 'string', 'max' => 100],
-            [['product_Name', 'product_Image'], 'string', 'max' => 50],
+            [['product_Name', 'product_Image'], 'string'],
             [['product_Band'], 'string', 'max' => 30],
             [['Category_ID'], 'exist', 'skipOnError' => true, 'targetClass' => CategoryList::className(), 'targetAttribute' => ['Category_ID' => 'category_id']],
         ];
