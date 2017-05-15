@@ -104,7 +104,7 @@ Each of the generator properties (like `name`, `address`, and `lorem`) are calle
 
     randomDigit             // 7
     randomDigitNotNull      // 5
-    randomNumber($nbDigits = NULL) // 79907610
+    randomNumber($nbDigits = NULL, $strict = false) // 79907610
     randomFloat($nbMaxDecimals = NULL, $min = 0, $max = NULL) // 48.8932
     numberBetween($min = 1000, $max = 9000) // 8567
     randomLetter            // 'b'
@@ -861,6 +861,38 @@ echo $faker->bank; // "Volksbank Stuttgart"
 
 ```
 
+### `Faker\Provider\en_HK\Address`
+
+```php
+<?php
+
+// Generates a fake town name based on the words commonly found in Hong Kong
+echo $faker->town; // "Yuen Long"
+
+// Generates a fake village name based on the words commonly found in Hong Kong
+echo $faker->village; // "O Tau"
+
+// Generates a fake estate name based on the words commonly found in Hong Kong
+echo $faker->estate; // "Ching Lai Court"
+
+```
+
+### `Faker\Provider\en_HK\Phone`
+
+```php
+<?php
+
+// Generates a Hong Kong mobile number (starting with 5, 6 or 9)
+echo $faker->mobileNumber; // "92150087"
+
+// Generates a Hong Kong landline number (starting with 2 or 3)
+echo $faker->landlineNumber; // "32750132"
+
+// Generates a Hong Kong fax number (starting with 7)
+echo $faker->faxNumber; // "71937729"
+
+```
+
 ### `Faker\Provider\en_NZ\Phone`
 
 ```php
@@ -939,6 +971,27 @@ echo $faker->vat;           // "A35864370"
 
 // Generates a Peruvian Documento Nacional de Identidad (DNI) number
 echo $faker->dni; // '83367512'
+```
+
+### `Faker\Provider\fa_IR\Address`
+
+```php
+<?php
+
+// Generates a random building name
+echo $faker->building; // "ساختمان آفتاب"
+
+// Returns a random city name
+echo $faker->city // "استان زنجان"
+```
+
+### `Faker\Provider\fa_IR\Company`
+
+```php
+<?php
+
+// Generates a random contract type
+echo $faker->contract; // "رسمی"
 ```
 
 ### `Faker\Provider\fi_FI\Payment`
@@ -1393,6 +1446,15 @@ echo $faker->personalIdentityNumber('female') // '950910-0781'
 
 // Generates a random bank name (based on list of real chinese banks)
 echo $faker->bank; // '中国建设银行'
+```
+
+### `Faker\Provider\uk_UA\Payment`
+
+```php
+<?php
+
+// Generates an Ukraine bank name (based on list of real Ukraine banks)
+echo $faker->bank; // "Ощадбанк"
 ```
 
 ### `Faker\Provider\zh_TW\Person`

@@ -638,11 +638,9 @@ class ApplicationTest extends TestCase
 
     public function testRenderExceptionEscapesLines()
     {
-        $application = $this->getMockBuilder('Symfony\Component\Console\Application')->setMethods(array('getTerminalWidth'))->getMock();
+        $application = new Application();
         $application->setAutoExit(false);
-        $application->expects($this->any())
-            ->method('getTerminalWidth')
-            ->will($this->returnValue(22));
+        putenv('COLUMNS=22');
         $application->register('foo')->setCode(function () {
             throw new \Exception('dont break here <info>!</info>');
         });
@@ -650,6 +648,7 @@ class ApplicationTest extends TestCase
 
         $tester->run(array('command' => 'foo'), array('decorated' => false));
         $this->assertStringEqualsFile(self::$fixturesPath.'/application_renderexception_escapeslines.txt', $tester->getDisplay(true), '->renderException() escapes lines containing formatting');
+        putenv('COLUMNS=120');
     }
 
     public function testRun()
@@ -1040,13 +1039,35 @@ class ApplicationTest extends TestCase
         $this->assertContains('before.error.after.', $tester->getDisplay());
     }
 
+    public function testRunWithError()
+    {
+        $application = new Application();
+        $application->setAutoExit(false);
+        $application->setCatchExceptions(false);
+
+        $application->register('dym')->setCode(function (InputInterface $input, OutputInterface $output) {
+            $output->write('dym.');
+
+            throw new \Error('dymerr');
+        });
+
+        $tester = new ApplicationTester($application);
+
+        try {
+            $tester->run(array('command' => 'dym'));
+            $this->fail('Error expected.');
+        } catch (\Error $e) {
+            $this->assertSame('dymerr', $e->getMessage());
+        }
+    }
+
     public function testRunAllowsErrorListenersToSilenceTheException()
     {
         $dispatcher = $this->getDispatcher();
         $dispatcher->addListener('console.error', function (ConsoleErrorEvent $event) {
             $event->getOutput()->write('silenced.');
 
-            $event->markErrorAsHandled();
+            $event->setExitCode(0);
         });
 
         $dispatcher->addListener('console.command', function () {
@@ -1064,12 +1085,31 @@ class ApplicationTest extends TestCase
         $tester = new ApplicationTester($application);
         $tester->run(array('command' => 'foo'));
         $this->assertContains('before.error.silenced.after.', $tester->getDisplay());
-        $this->assertEquals(0, $tester->getStatusCode());
+        $this->assertEquals(ConsoleCommandEvent::RETURN_CODE_DISABLED, $tester->getStatusCode());
+    }
+
+    public function testConsoleErrorEventIsTriggeredOnCommandNotFound()
+    {
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('console.error', function (ConsoleErrorEvent $event) {
+            $this->assertNull($event->getCommand());
+            $this->assertInstanceOf(CommandNotFoundException::class, $event->getError());
+            $event->getOutput()->write('silenced command not found');
+        });
+
+        $application = new Application();
+        $application->setDispatcher($dispatcher);
+        $application->setAutoExit(false);
+
+        $tester = new ApplicationTester($application);
+        $tester->run(array('command' => 'unknown'));
+        $this->assertContains('silenced command not found', $tester->getDisplay());
+        $this->assertEquals(1, $tester->getStatusCode());
     }
 
     /**
      * @group legacy
-     * @expectedDeprecation The "console.exception" event is deprecated since version 3.3 and will be removed in 4.0. Use the "console.error" event instead.
+     * @expectedDeprecation The "ConsoleEvents::EXCEPTION" event is deprecated since Symfony 3.3 and will be removed in 4.0. Listen to the "ConsoleEvents::ERROR" event instead.
      */
     public function testLegacyExceptionListenersAreStillTriggered()
     {
@@ -1094,27 +1134,28 @@ class ApplicationTest extends TestCase
         $this->assertContains('replaced in caught.', $tester->getDisplay());
     }
 
-    public function testRunWithError()
+    /**
+     * @requires PHP 7
+     */
+    public function testErrorIsRethrownIfNotHandledByConsoleErrorEvent()
     {
-        if (method_exists($this, 'expectException')) {
-            $this->expectException('Exception');
-            $this->expectExceptionMessage('dymerr');
-        } else {
-            $this->setExpectedException('Exception', 'dymerr');
-        }
-
         $application = new Application();
         $application->setAutoExit(false);
         $application->setCatchExceptions(false);
+        $application->setDispatcher(new EventDispatcher());
 
         $application->register('dym')->setCode(function (InputInterface $input, OutputInterface $output) {
-            $output->write('dym.');
-
-            throw new \Error('dymerr');
+            new \UnknownClass();
         });
 
         $tester = new ApplicationTester($application);
-        $tester->run(array('command' => 'dym'));
+
+        try {
+            $tester->run(array('command' => 'dym'));
+            $this->fail('->run() should rethrow PHP errors if not handled via ConsoleErrorEvent.');
+        } catch (\Error $e) {
+            $this->assertSame($e->getMessage(), 'Class \'UnknownClass\' not found');
+        }
     }
 
     /**
@@ -1335,7 +1376,7 @@ class ApplicationTest extends TestCase
             $event->getOutput()->writeln('after.');
 
             if (!$skipCommand) {
-                $event->setExitCode(113);
+                $event->setExitCode(ConsoleCommandEvent::RETURN_CODE_DISABLED);
             }
         });
         $dispatcher->addListener('console.error', function (ConsoleErrorEvent $event) {

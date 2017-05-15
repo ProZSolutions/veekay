@@ -21,7 +21,8 @@ public function behaviors()
           'index'=>['get'],       
           'upload-product-list'=>['post'],  
           'update-product-list'=>['post'],  
-          'delete-product-list'=>['post'],        
+          'delete-product-list'=>['post'],  
+          'sync'=>['post'],      
         ],        
       ]
 
@@ -159,7 +160,28 @@ public function behaviors()
      echo json_encode(array('status'=>"error",'data'=>array_filter($model->errors)),JSON_PRETTY_PRINT);
     }     
   } 
- 
+ public function actionSync(){
+    $params = Yii::$app->getRequest()->getBodyParams(); 
+    $data =$params['date'];
+    $date = date('Y-m-d H:i', strtotime($data));   
+    $query= new Query;     
+    $query  ->select(['c.category_id as Category_ID','c.category_name as category_Name', 'p.product_Count', 'p.product_Desc', 'p.product_Id','p.product_Band', 'p.product_Image',  'p.product_Name', 'p.product_Price','p.is_Active']) 
+    ->from('Product as p')
+    ->leftJoin('category as c', 'c.category_id = p.Category_ID')
+    ->where(['>=', 'p.date_time', $date]);           
+    $command = $query->createCommand();
+    $models = $command->queryAll();
+    if($models!==[])  {
+    $this->setHeader(200);     
+    echo json_encode(array('current_date'=> date('d-m-Y H:i'),'data'=>array_filter($models)),JSON_UNESCAPED_SLASHES);
+  }
+  else{
+    $this->setHeader(400);
+      echo json_encode(array('status'=>"error",'data'=>array('message'=>'Bad request')),JSON_PRETTY_PRINT);
+      exit;
+
+  }
+  }
       
   protected function findModel($product_ID) { 
 

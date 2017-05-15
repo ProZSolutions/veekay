@@ -12,7 +12,7 @@ class CategoryListController extends \yii\web\Controller
     
 
 public function behaviors()
-  {  //declare url for use get and post
+  {  //declare get and post method for url route 
     return [
          'verbs' => [
         'class' => VerbFilter::className(),
@@ -20,7 +20,8 @@ public function behaviors()
           'index'=>['get'],    
           'upload-category-list'=>['post'],
           'update-category-list'=>['post'],
-          'delete-category-list'=>['post'],                  
+          'delete-category-list'=>['post'],
+          'sync'=>['post'],                 
         ],        
       ]
     ];
@@ -49,19 +50,20 @@ public function behaviors()
   }   
   //this method used to get all category list  
   public function actionIndex() {         
-    $query= new Query;      
-    $query ->from('category')      
+    $query= new Query;//refer from use yii\db\Query.It is initialize start the prg
+    $query ->from('category') //table name     
     ->select("category_id as category_ID,category_name as category_Name, is_Active");           
     $command = $query->createCommand();
     $models = $command->queryAll();  
     $this->setHeader(200);     
-    echo json_encode(array_filter($models),JSON_UNESCAPED_SLASHES);     
+    echo json_encode(array_filter($models),JSON_UNESCAPED_SLASHES); 
+    //convert json format    
   }   
  
 //uploading category list
   public function actionUploadCategoryList() {       
-    $params = Yii::$app->getRequest()->getBodyParams();    
-    $model = new CategoryList();       
+    $params = Yii::$app->getRequest()->getBodyParams(); //get parameters   
+    $model = new CategoryList();  //call Category class     
     $model->category_id=$params['category_ID'];  
     $model->category_name=$params['category_Name'];     
     if ($model->save()) {      
@@ -102,6 +104,27 @@ public function behaviors()
       $this->setHeader(400);
      echo json_encode(array('status'=>"error",'data'=>array_filter($model->errors)),JSON_PRETTY_PRINT);
     }     
+  }
+  public function actionSync(){
+    $params = Yii::$app->getRequest()->getBodyParams(); 
+    $data =$params['date'];
+    $date = date('Y-m-d H:i', strtotime($data));    
+    $query= new Query;//refer from use yii\db\Query.It is initialize start the prg
+    $query ->from('category') //table name     
+    ->select("category_id as category_ID,category_name as category_Name, is_Active")
+    ->where(['>=', 'date_time', $date]);           
+    $command = $query->createCommand();
+    $models = $command->queryAll();
+    if($models!==[])  {
+      $this->setHeader(200);     
+      echo json_encode(array('current_date'=> date('d-m-Y H:i'),'data'=>array_filter($models)),JSON_UNESCAPED_SLASHES); 
+    }
+  else{
+    $this->setHeader(400);
+      echo json_encode(array('data'=>"json data not found"),JSON_PRETTY_PRINT);
+      exit;
+
+  }
   } 
   //find particular data for delete and update process
   protected function findModel($category_ID) { 

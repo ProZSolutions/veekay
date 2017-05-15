@@ -5,11 +5,13 @@ use Yii;
 use yii\filters\VerbFilter;
 use yii\db\Query;
 use app\models\Customer;
-
+use mPDF;
+use kartik\mpdf\Pdf;
+use Swift_Attachment;
 
 class CustomerListController extends \yii\web\Controller
 {
-    public $documentPath = __DIR__ . '/images/';
+ public $documentPath = __DIR__ . '/images/';
 public function behaviors()
   {  
     return [
@@ -19,7 +21,8 @@ public function behaviors()
           'index'=>['get'],     
           'upload-customer-list'=>['post'], 
           'update-customer-list'=>['post'],
-          'delete-customer-list'=>['post'],        
+          'delete-customer-list'=>['post'], 
+          'sync'=>['post'],       
         ],        
       ]
     ];
@@ -57,7 +60,9 @@ public function behaviors()
   }   
 
   public function actionUploadCustomerList() {       
-  $params = Yii::$app->getRequest()->getBodyParams();      
+  $params = Yii::$app->getRequest()->getBodyParams();  
+
+    
   $model = new Customer();     
   $model->cust_ID=$params['cust_ID'];
   $model->cust_Name=$params['cust_Name'];
@@ -69,16 +74,17 @@ public function behaviors()
   $model->cust_mail=$params['cust_Mail'];  
   $model->cust_town=$params['cust_Town']; 
   $model->cust_no=$params['cust_No']; 
-  $model->cust_AltNo=$params['cust_AltNo']; 
+  $model->cust_AltNo=$params['cust_AltNo'];   
+    
+
   if(isset($_FILES['cust_Img']) && !empty($_FILES['cust_Img'])) {
    $target_path = yii::$app->basePath . "/uploads/cus_img/" . $_FILES['cust_Img']['name'];
    $ext = pathinfo($target_path, PATHINFO_EXTENSION);
    $ext=($ext)?$ext:'.jpg';
    $img_name = time() . "." . $ext;
-
    $path = yii::$app->basePath . "/uploads/cus_img/" . $img_name;
-
-   $syntax = move_uploaded_file($_FILES['cust_Img']['tmp_name'], $path);
+  $syntax = move_uploaded_file($_FILES['cust_Img']['tmp_name'], $path); 
+  
    if($syntax)
    {
   $model->cust_img = "http://api.pro-z.in/uploads/cus_img/".$img_name;
@@ -169,6 +175,39 @@ public function behaviors()
      echo json_encode(array('status'=>"error",'data'=>array_filter($model->errors)),JSON_PRETTY_PRINT);
     }     
   }
+    public function actionSync(){
+    $params = Yii::$app->getRequest()->getBodyParams(); 
+    $data =$params['date'];
+    $date = date('Y-m-d H:i', strtotime($data));    
+    $query= new Query;       
+    $query  ->select(['cust_ID','cust_Name','cust_Door_No','cust_Street_Name', 'cust_town as cust_Town','cust_country as cust_Country','cust_postcode as cust_Postcode','cust_band as cust_Band','cust_img as cust_Img','cust_no as cust_No', 'cust_AltNo', 'cust_mail as cust_Mail','is_Active']) 
+    ->from('Customer')
+    ->where(['>=', 'date_time', $date]);           
+    $command = $query->createCommand();
+    $models = $command->queryAll();
+    if($models!==[])  {
+    $this->setHeader(200);     
+    echo json_encode(array('current_date'=> date('d-m-Y H:i'),'data'=>array_filter($models)),JSON_UNESCAPED_SLASHES); 
+  }
+  else{
+    $this->setHeader(400);
+      echo json_encode(array('status'=>"error",'data'=>array('message'=>'Bad request')),JSON_PRETTY_PRINT);
+      exit;
+
+  }
+  }
+  protected function contact($email,$data)
+    {
+         $swiftAttachment = Swift_Attachment::fromPath($data);
+            Yii::$app->mailer->compose()
+                ->setTo($email)
+                ->setFrom(['velanms1993@gmail.com'])
+                ->setSubject('hi')
+                ->setTextBody('gud afternun')
+                ->attach($data)               
+                ->send();
+
+    }
 
   protected function findModel($cust_ID) { 
     if (($model = Customer::findOne(['cust_ID' => $cust_ID])) !== null) {
